@@ -4,7 +4,7 @@ from aiogram.types import ReplyKeyboardRemove
 from buttons.keyboardbuttons import keyboardbutton, share_contact_button
 from buttons.inlinekeyboardbuttons import inlinekeyboardbuttonlinks
 from config import ADMIN_IDS
-from database.database import add_user, get_user, user_exists, create_database, add_starter_user, add_uc, get_uc, update_uc, add_invite, update_invite, get_invite, get_setting, get_all_channels, add_setting
+from database.database import add_user, get_user, user_exists, create_database, add_starter_user, add_uc, get_uc, update_uc, add_invite, update_invite, get_invite, get_setting, get_all_channels, add_setting, add_inviter_user
 from states import *
 from loader import bot
 from config import main_menu_list
@@ -88,6 +88,7 @@ async def phone_number(message: m, state: s):
             uc = get_uc(data.get("promocode"))
             update_uc(data.get("promocode"), int(uc)+int(get_setting("add_man_uc")))
             invite = get_invite(data.get("promocode"))
+            add_inviter_user(offerer=invite, offered=message.from_user.id)
             update_invite(data.get("promocode"), int(invite)+1)
             await bot.send_message(data.get("promocode"), f"Siz taklif qilgan havola orqali {fullname} ismli foydalanuvchi ro'yxatdan o'tdi!")
         await message.answer("🎛 Siz asosiy menyudasiz.",reply_markup=keyboardbutton(["💸 UC ishlash", "💸 UC OLISH 💸", "📊 Statistika", "🏆 Top reyting", "📞 Murojaat", "✅ Ma'lumot", "💬 Fikr bildirish"], row=2))

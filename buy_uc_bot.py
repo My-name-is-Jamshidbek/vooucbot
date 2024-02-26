@@ -3,7 +3,7 @@ from aiogram import executor
 from datetime import datetime
 import logging
 from loader import pay_bot, pay_dp, bot
-from database.database import get_buy_uc_tg_id, update_thrown_away_status
+from database.database import get_buy_uc_tg_id, update_thrown_away_status, add_inviter_user, get_offerer_user
 from buttons.inlinekeyboardbuttons import create_inline_keyboard
 from config import ADMIN_ID
 
@@ -38,7 +38,12 @@ async def buy_or_close(call: CallbackQuery):
         if _m.split("_")[0] == "check":
             update_thrown_away_status(_m.split("_")[1])
             _tgid = get_buy_uc_tg_id(_m.split("_")[1])
-            await bot.send_message(_tgid, f"Sizning {_m.split('_')[1]} raqamli haridigiz amalga oshirildi ✅")        
+            offerer = get_offerer_user(offered = _tgid)
+            uc = get_uc(data.get(offerer))
+            update_uc(offerer, int(uc)+int(get_setting("add_off_uc")))
+
+            await bot.send_message(_tgid, f"Sizning {_m.split('_')[1]} raqamli haridigiz amalga oshirildi ✅")
+            await bot.send_message(offerer, f"Siz taklif qilgan foydalanuvchi uc sotib olgani uchun sizga bonus sifatida {get_setting("add_off_uc")} uc taqdim etildi.")
             await call.message.delete()
             await pay_bot.send_message(ADMIN_ID, f"AMALGA OSHIRILGAN BUYURTMA\nid: {_m.split('_')[1]}")
             # await pay_bot.edit_message_reply_markup(ADMIN_ID, call.message.delete(), reply_markup=create_inline_keyboard([{"text": "TO'LANGAN", "data": "payed"}]))
